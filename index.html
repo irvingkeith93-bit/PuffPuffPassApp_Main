@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puff, Puff, Pass | Nicotine Tracking & Quit Support</title>
+
+  <style>
+    :root {
+      --navy: #061225;
+      --navy-2: #0b1d36;
+      --gold: #f5b301;
+      --gold-bright: #ffd76a;
+      --white: #ffffff;
+      --soft-white: #f5f7fb;
+      --gray: #aeb8c8;
+      --green: #52d273;
+      --red: #ff5a5f;
+    }
+
+    * {
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #13294a 0%, var(--navy) 45%, #020814 100%);
+      color: var(--soft-white);
+      line-height: 1.6;
+    }
+
+    header {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.35;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+    }
+
+    .logo {
+      width: 190px;
+      height: 190px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 25px rgba(245,179,1,0.45));
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border: 1px solid rgba(245,179,1,0.55);
+      border-radius: 999px;
+      color: var(--gold-bright);
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      background: rgba(245,179,1,0.08);
+    }
+
+    h1 {
+      font-size: clamp(42px, 8vw, 84px);
+      line-height: 1;
+      margin: 0;
+      color: var(--white);
+      letter-spacing: -2px;
+    }
+
+    h1 span {
+      color: var(--gold);
+      text-shadow: 0 0 18px rgba(245,179,1,0.5);
+    }
+
+    .tagline {
+      font-size: clamp(18px, 3vw, 28px);
+      color: var(--gray);
+      margin: 22px auto 30px;
+      max-width: 760px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s ease;
+    }
+
+    .button-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+      color: #111;
+      box-shadow: 0 0 25px rgba(245,179,1,0.35);
+    }
+
+    .button-secondary {
+      border: 1px solid rgba(255,255,255,0.25);
+      color: var(--white);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      opacity: 0.92;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(2,8,20,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 14px 20px;
+      text-align: center;
+    }
+
+    nav a {
+      color: var(--soft-white);
+      text-decoration: none;
+      margin: 0 12px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    nav a:hover {
+      color: var(--gold);
+    }
+
+    section {
+      padding: 80px 20px;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: auto;
+    }
+
+    .section-title {
+      font-size: clamp(30px, 5vw, 48px);
+      margin-bottom: 16px;
+      color: var(--white);
+    }
+
+    .section-title span {
+      color: var(--gold);
+    }
+
+    .section-intro {
+      color: var(--gray);
+      max-width: 780px;
+      font-size: 18px;
+      margin-bottom: 36px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    }
+
+    .card h3 {
+      color: var(--gold-bright);
+      margin-top: 0;
+      font-size: 22px;
+    }
+
+    .card p {
+      color: var(--gray);
+    }
+
+    .tracker-panel {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(245,179,1,0.25);
+      border-radius: 24px;
+      padding: 34px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .metric {
+      border-left: 4px solid var(--gold);
+      padding-left: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 34px;
+      color: var(--white);
+    }
+
+    .metric span {
+      color: var(--gray);
+      font-size: 15px;
+    }
+
+    .target-box {
+      border: 1px dashed rgba(245,179,1,0.45);
+      border-radius: 18px;
+      padding: 28px;
+      background: rgba(245,179,1,0.06);
+      margin-top: 30px;
+    }
+
+    .legal-box {
+      background: #ffffff;
+      color: #1d2433;
+      border-radius: 18px;
+      padding: 32px;
+      margin-bottom: 26px;
+    }
+
+    .legal-box h3 {
+      color: #061225;
+      margin-top: 0;
+    }
+
+    .legal-box p,
+    .legal-box li {
+      color: #3d4658;
+    }
+
+    .legal-box a {
+      color: #061225;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #020814;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      padding: 35px 20px;
+      color: var(--gray);
+    }
+
+    footer img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      margin-bottom: 12px;
+    }
+
+    footer a {
+      color: var(--gold-bright);
+    }
+
+    @media (max-width: 600px) {
+      nav a {
+        display: inline-block;
+        margin: 6px 8px;
+      }
+
+      .logo {
+        width: 150px;
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#science">Research</a>
+    <a href="#support">Support</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#agreement">User Agreement</a>
+  </nav>
+
+  <header>
+    <div class="hero">
+      <img src="pUFF_PUFF_pASS_logo_mASTER.png" alt="Puff, Puff, Pass App Icon" class="logo" />
+
+      <div class="badge">Track it. Target it. Take control.</div>
+
+      <h1>Puff, Puff, <span>Pass</span></h1>
+
+      <p class="tagline">
+        A modern nicotine tracking app built to help people understand their habits,
+        monitor how they feel, stay motivated daily, and eventually pass on smoking,
+        vaping, pouches, or whatever nicotine routine they are working to leave behind.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="#" class="button button-primary">Download App</a>
+        <a href="#support" class="button button-secondary">Get Support</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title">Built for the moment you decide to <span>take aim.</span></h2>
+      <p class="section-intro">
+        Puff, Puff, Pass helps users track cigarettes, vaping, pouches, nicotine spending,
+        cravings, mood, and daily progress. The goal is simple: build awareness, identify
+        patterns, and turn daily tracking into daily momentum.
+      </p>
+
+      <div class="tracker-panel">
+        <div class="metric">
+          <strong>Daily</strong>
+          <span>Check-ins for smoking, vaping, pouches, cravings, mood, and progress.</span>
+        </div>
+
+        <div class="metric">
+          <strong>$</strong>
+          <span>Track money spent and see how much can be saved over time.</span>
+        </div>
+
+        <div class="metric">
+          <strong>Focus</strong>
+          <span>Precision-style habit tracking designed to make your target clear.</span>
+        </div>
+
+        <div class="metric">
+          <strong>Pass</strong>
+          <span>The long-term goal: pass on nicotine and move forward.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="container">
+      <h2 class="section-title">A smarter way to track nicotine use.</h2>
+      <p class="section-intro">
+        Whether someone smokes, vapes, uses nicotine pouches, cigars, or other nicotine products,
+        Puff, Puff, Pass gives them a clean, fun, tech-forward place to measure progress.
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Nicotine Tracking</h3>
+          <p>
+            Log cigarettes, vape puffs, pouches, cigars, or other nicotine use in a simple,
+            organized daily tracker.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Money Awareness</h3>
+          <p>
+            Track spending over time and see the real cost of nicotine habits with clear,
+            easy-to-understand savings insights.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Mood & Feeling Logs</h3>
+          <p>
+            Record how you feel each day so you can connect cravings, habits, emotions,
+            routines, and triggers.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Daily Motivation</h3>
+          <p>
+            Get encouragement, reminders, and research-backed messages designed to help
+            reinforce progress and consistency.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Progress Milestones</h3>
+          <p>
+            Celebrate streaks, reductions, money saved, and the small wins that make
+            long-term change feel possible.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Sharpshooter Focus</h3>
+          <p>
+            A precision-inspired experience that helps users identify their target,
+            reduce noise, and stay locked in on progress.
+          </p>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <h3>Why “Puff, Puff, Pass”?</h3>
+        <p>
+          The name is about progression. First, you track the puffs. Then, you understand
+          the habit. Eventually, the goal is to pass on smoking, vaping, pouches, or
+          whatever form of nicotine use you are working to move away from.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="science">
+    <div class="container">
+      <h2 class="section-title">Research-backed encouragement.</h2>
+      <p class="section-intro">
+        Tracking can create awareness. Awareness can support behavior change. Puff, Puff, Pass
+        uses daily tracking, motivational reinforcement, and habit reflection to help users
+        better understand their nicotine patterns.
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Track the Habit</h3>
+          <p>
+            Users can see when, where, and how often they use nicotine. This helps make
+            patterns easier to spot and easier to address.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Daily Reinforcement</h3>
+          <p>
+            The app provides motivational messages and educational prompts designed to
+            support consistency and build confidence.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Progress Over Perfection</h3>
+          <p>
+            Quitting or cutting back can be difficult. Puff, Puff, Pass is built to support
+            small wins, honest tracking, and forward movement.
+          </p>
+        </div>
+      </div>
+
+      <div class="target-box">
+        <p>
+          Puff, Puff, Pass may reference research-backed concepts showing that tracking
+          smoking or nicotine behavior can improve awareness and support quit attempts.
+          Results vary by person, and the app does not guarantee a specific quit rate or
+          health outcome.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="support">
+    <div class="container">
+      <h2 class="section-title">Support</h2>
+      <p class="section-intro">
+        Need help with the app, your account, billing, feedback, or technical support?
+        Contact Irving Industries directly.
+      </p>
+
+      <div class="legal-box">
+        <h3>Contact Support</h3>
+        <p>
+          Email:
+          <a href="mailto:IrvingIndustries@Outlook.com">IrvingIndustries@Outlook.com</a>
+        </p>
+        <p>
+          Please include your name, device type, app version if available, and a short
+          description of the issue so support can respond as quickly as possible.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <div class="container">
+      <h2 class="section-title">Privacy Policy</h2>
+
+      <div class="legal-box">
+        <h3>Privacy Policy for Puff, Puff, Pass</h3>
+
+        <p>
+          Puff, Puff, Pass respects user privacy. This Privacy Policy explains how information
+          may be collected, used, and protected when using the app and website.
+        </p>
+
+        <h3>Information We May Collect</h3>
+        <p>
+          The app may allow users to enter information related to nicotine use, smoking,
+          vaping, nicotine pouches, cravings, spending, mood, feelings, goals, and progress.
+          The app may also collect basic technical information such as device type, app
+          performance, crash reports, and general usage data to improve the user experience.
+        </p>
+
+        <h3>How Information Is Used</h3>
+        <p>
+          Information may be used to operate the app, display user progress, provide
+          motivational messages, improve features, troubleshoot issues, and support users.
+          Puff, Puff, Pass does not sell personal user data.
+        </p>
+
+        <h3>Health-Related Information</h3>
+        <p>
+          Information entered into the app may relate to nicotine habits, wellness, mood,
+          and personal progress. Users should avoid entering information they do not want
+          stored or processed by the app.
+        </p>
+
+        <h3>Third-Party Services</h3>
+        <p>
+          The app may use third-party services for app hosting, analytics, subscriptions,
+          crash reporting, or platform functionality. These providers may process limited
+          data according to their own privacy practices.
+        </p>
+
+        <h3>Data Security</h3>
+        <p>
+          Reasonable safeguards are used to protect information. However, no digital
+          service can guarantee absolute security.
+        </p>
+
+        <h3>Children’s Privacy</h3>
+        <p>
+          Puff, Puff, Pass is not intended for children or for anyone under the legal age
+          required to use nicotine-related products in their jurisdiction. The app does not
+          knowingly collect information from children.
+        </p>
+
+        <h3>Contact</h3>
+        <p>
+          Questions about privacy may be sent to
+          <a href="mailto:IrvingIndustries@Outlook.com">IrvingIndustries@Outlook.com</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="agreement">
+    <div class="container">
+      <h2 class="section-title">User Agreement</h2>
+
+      <div class="legal-box">
+        <h3>User Agreement for Puff, Puff, Pass</h3>
+
+        <p>
+          By accessing or using Puff, Puff, Pass, you agree to this User Agreement. If you
+          do not agree, do not use the app or website.
+        </p>
+
+        <h3>1. App Purpose</h3>
+        <p>
+          Puff, Puff, Pass is a nicotine tracking, habit awareness, motivational, and
+          self-reflection tool. The app is designed to help users monitor nicotine-related
+          behavior, track spending, log feelings, receive motivational encouragement, and
+          review progress over time.
+        </p>
+
+        <h3>2. Not Medical Advice</h3>
+        <p>
+          Puff, Puff, Pass does not provide medical advice, diagnosis, treatment, therapy,
+          or professional healthcare services. The app is not a substitute for a physician,
+          therapist, smoking cessation counselor, pharmacist, or other qualified professional.
+          Users should consult a qualified healthcare provider before making health-related
+          decisions, especially if they have medical conditions, mental health concerns,
+          pregnancy-related concerns, or dependency-related concerns.
+        </p>
+
+        <h3>3. Emergency Disclaimer</h3>
+        <p>
+          Puff, Puff, Pass is not an emergency service. If you are experiencing a medical
+          emergency, mental health emergency, severe withdrawal symptoms, or thoughts of
+          self-harm, call emergency services or contact a qualified crisis support provider
+          immediately.
+        </p>
+
+        <h3>4. No Guaranteed Results</h3>
+        <p>
+          The app may provide motivational content, tracking tools, and research-backed
+          educational concepts. However, Puff, Puff, Pass does not guarantee that any user
+          will reduce nicotine use, quit nicotine, achieve a specific success rate, save a
+          specific amount of money, or experience any particular health outcome.
+        </p>
+
+        <h3>5. User Responsibility</h3>
+        <p>
+          Users are responsible for the accuracy of information they enter, how they use
+          the app, and any decisions they make based on app content. Users agree to use the
+          app lawfully and responsibly.
+        </p>
+
+        <h3>6. Age Requirement</h3>
+        <p>
+          Puff, Puff, Pass is intended only for users who are legally permitted to access
+          nicotine-related content and products in their jurisdiction. The app is not
+          intended to encourage nicotine use by anyone.
+        </p>
+
+        <h3>7. Subscriptions and Payments</h3>
+        <p>
+          If the app offers paid features, subscriptions, or premium access, billing may be
+          handled through the applicable app store or payment provider. Subscription terms,
+          renewals, cancellations, refunds, and payment disputes may be subject to the rules
+          of that provider.
+        </p>
+
+        <h3>8. Acceptable Use</h3>
+        <p>
+          Users agree not to misuse the app, attempt to reverse engineer it, disrupt service,
+          upload harmful content, violate laws, infringe intellectual property rights, or use
+          the app in a way that harms others.
+        </p>
+
+        <h3>9. Intellectual Property</h3>
+        <p>
+          Puff, Puff, Pass, including its name, design, branding, text, visuals, features,
+          and app experience, is owned by Irving Industries or its applicable rights holders.
+          Users may not copy, reproduce, distribute, or commercially exploit app content
+          without permission.
+        </p>
+
+        <h3>10. Limitation of Liability</h3>
+        <p>
+          To the fullest extent permitted by law, Puff, Puff, Pass, Irving Industries, and
+          related parties are not liable for indirect, incidental, consequential, special,
+          punitive, or other damages arising from use of the app, inability to use the app,
+          reliance on app content, or user decisions.
+        </p>
+
+        <h3>11. Disclaimer of Warranties</h3>
+        <p>
+          The app is provided “as is” and “as available.” No warranties are made regarding
+          uninterrupted service, error-free operation, accuracy, availability, security, or
+          fitness for a particular purpose.
+        </p>
+
+        <h3>12. Changes to the App or Terms</h3>
+        <p>
+          Puff, Puff, Pass may update the app, website, policies, or this User Agreement
+          from time to time. Continued use after updates means users accept the revised terms.
+        </p>
+
+        <h3>13. Contact</h3>
+        <p>
+          Questions about this User Agreement may be sent to
+          <a href="mailto:IrvingIndustries@Outlook.com">IrvingIndustries@Outlook.com</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <img src="pUFF_PUFF_pASS_logo_mASTER.png" alt="Puff, Puff, Pass Icon" />
+    <p><strong>Puff, Puff, Pass</strong></p>
+    <p>Track the habit. Hit the target. Pass on nicotine.</p>
+    <p>
+      Support:
+      <a href="mailto:IrvingIndustries@Outlook.com">IrvingIndustries@Outlook.com</a>
+    </p>
+    <p>&copy; 2026 Irving Industries. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
